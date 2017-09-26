@@ -41,6 +41,13 @@ test_myevalR x result = do
   x <- peek x
   poke result $ realToFrac $ myeval (realToFrac x :: Double)
 
+foreign export ccall test_myeval2R :: Ptr (SEXP s 'R.Closure) -> Ptr CDouble -> Ptr CDouble -> IO ()
+test_myeval2R :: Ptr (SEXP s 'R.Closure) -> Ptr CDouble -> Ptr CDouble -> IO ()
+test_myeval2R f x result = do
+  f <- peek f
+  x <- peek x
+  poke result $ realToFrac $ myeval2 f (realToFrac x :: Double)
+
 foreign export ccall chebyshevFitR2 :: Ptr CInt -> Ptr (SEXP V 'R.Real) -> IO ()
 chebyshevFitR2 :: Ptr CInt -> Ptr (SEXP V 'R.Real) -> IO ()
 chebyshevFitR2 n result = do

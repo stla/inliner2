@@ -48,13 +48,14 @@ SEXP realToSEXP (int n, double *arr){
 }
 
 double* SEXPtoReal (SEXP vectorR){
-    int n = length(vectorR);
+    //int n = length(vectorR);
     double* vector = REAL(vectorR);
-    double* list = calloc(n, sizeof(double));
-    for(int i=0; i<n; i++){
-        list[i] = vector[i];
-    }
-    return list;
+    //double* list = calloc(n, sizeof(double));
+    //for(int i=0; i<n; i++){
+    //    list[i] = vector[i];
+    //}
+    //return list;
+    return vector;
 }
 
 SEXP intToSEXP (int n, int *arr){

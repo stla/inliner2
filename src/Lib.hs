@@ -6,6 +6,7 @@ module Lib where
 import qualified Data.Vector.Storable as SV
 import           Foreign              (Ptr, newForeignPtr_, peekArray)
 import           Foreign.C.Types
+--import           Foreign.C.String     (withCString)
 import           Foreign.R            (SEXP, SEXP0, sexp, unsexp)
 import qualified Foreign.R            as R
 import qualified Foreign.R.Type       as R
@@ -22,6 +23,7 @@ myeval x = realToFrac (c_myeval (realToFrac x))
 foreign import ccall "myeval2" c_myeval2 :: SEXP0 -> CDouble -> CDouble
 myeval2 :: SEXP s 'R.Closure -> Double -> Double
 myeval2 f x = realToFrac (c_myeval2 (unsexp f) (realToFrac x))
+
 
 foreign import ccall "realToSEXP" c_realToSEXP :: CInt -> Ptr CDouble -> SEXP0
 

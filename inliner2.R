@@ -31,6 +31,9 @@ microbenchmark(
 f <- function(x) x+1
 .C("test_myevalR", x=3, result=0)$result
 
+.C("test_myeval2R", f=list(function(x) x+1), x=3, result=0)$result
+
+
 f <- function(x) cos(4*acos(x))
 library(microbenchmark)
 n <- 15L
