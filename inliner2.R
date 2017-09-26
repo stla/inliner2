@@ -1,6 +1,16 @@
 dll <- "~/Work/Haskell/inliner2/foo2.so"
+dll <- "C:/HaskellProjects/inliner2/foo2.dll"
 dyn.load(dll)
 .C("HsStart")
+
+.C("sliceR", vectorR = list(c(1,2,3,4,5)), i=1L, n=2L, result=list(0))$result[[1L]]
+library(microbenchmark)
+x <- rnorm(1e6)
+i <- 7000L; n <- 900000L
+microbenchmark(
+  H = .C("sliceR", vectorR=list(x), i=i, n=n, result=list(0))$result[[1L]],
+  R = x[(i+1L):(i+1L+n)]
+)
 
 .C("rangeR", a=1L, b=4L, result=list(NULL))$result[[1]]
 library(microbenchmark)
@@ -37,7 +47,7 @@ microbenchmark(
   H = .C("chebApproxR", n=n, f=list(f), x = list(x), result=list(0))$result[[1L]],
   R = chebApprox(x, f, -1, 1, n-1)
 )
-# oui mais pracma plante:
+# plus lent oui mais pracma plante:
 x <- seq(-0.9, 0.9, length.out = 10)
 n <- 5L
 .C("chebApproxR", n=n, f=list(f), x = list(x), result=list(0))$result[[1L]]

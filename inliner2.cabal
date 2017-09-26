@@ -37,6 +37,7 @@ foreign-library inliner2
                      , inline-r
                      , singletons
                      , polynomial
+                     , vector
   hs-source-dirs:      src-dll
   c-sources:           C/StartEnd.c
   default-language:    Haskell2010

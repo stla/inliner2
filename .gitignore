@@ -1,4 +1,5 @@
 *.so
 *.dll
+*.a
 .stack-work/
 test/

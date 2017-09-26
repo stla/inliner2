@@ -61,6 +61,10 @@ packages:
 # Extra directories used by stack for building
 # extra-include-dirs: [/path/to/dir]
 # extra-lib-dirs: [/path/to/dir]
+extra-include-dirs:
+- C:\PortableApps\R-portable_3.4.1\R-portable\App\R-Portable\include
+extra-lib-dirs:
+- C:\PortableApps\R-portable_3.4.1\R-portable\App\R-Portable\bin\x64
 #
 # Allow a newer minor version of GHC than the snapshot specifies
 # compiler-check: newer-minor
