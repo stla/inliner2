@@ -68,3 +68,11 @@ sexpToRealVector vectorR = do
 
 -- sliceSEXP :: SEXP s 'R.Real -> CInt -> CInt -> IO (SEXP s 'R.Real)
 -- sliceSEXP vectorR = do
+
+foreign import ccall "intToSEXP" c_intToSEXP :: CInt -> Ptr CInt -> SEXP0
+
+intVectorToSEXP :: SV.Vector Int -> IO (SEXP s 'R.Int)
+intVectorToSEXP vector =
+  SV.unsafeWith
+    (SV.map fromIntegral vector)
+      (return . sexp . c_intToSEXP (fromIntegral (SV.length vector)))

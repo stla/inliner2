@@ -3,6 +3,14 @@ dll <- "C:/HaskellProjects/inliner2/foo2.dll"
 dyn.load(dll)
 .C("HsStart")
 
+.C("whichR", vectorR = list(c(1,2,3,4,5)), a=3, result=list(0L))$result[[1L]]
+library(microbenchmark)
+x <- as.double(rpois(100, 10))
+microbenchmark(
+  H = .C("whichR", vectorR=list(x), a=10, result=list(0L))$result[[1L]],
+  R = which(x==10)
+)
+
 .C("sliceR", vectorR = list(c(1,2,3,4,5)), i=1L, n=2L, result=list(0))$result[[1L]]
 library(microbenchmark)
 x <- rnorm(1e6)

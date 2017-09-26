@@ -18,7 +18,7 @@ double myeval(double x) {
     REAL(xR)[0] = x;
     UNPROTECT(1);
     SEXP call;
-    call = Rf_lang2(install("f"), xR); 
+    call = Rf_lang2(install("f"), xR);
     // evaluate f(x)
     return(REAL(eval(call, R_GlobalEnv))[0]);
 }
@@ -34,7 +34,7 @@ double myeval2(SEXP f, double x) {
     SEXP f_symbol = install("f");
     defineVar(f_symbol, f, rho);
     // evaluate f(x)
-    SEXP call = Rf_lang2(f_symbol, xR); 
+    SEXP call = Rf_lang2(f_symbol, xR);
     return(REAL(eval(call, rho))[0]);
 }
 
@@ -55,4 +55,13 @@ double* SEXPtoReal (SEXP vectorR){
         list[i] = vector[i];
     }
     return list;
+}
+
+SEXP intToSEXP (int n, int *arr){
+    SEXP Rval;
+    PROTECT(Rval = allocVector(INTSXP, n));
+    for (int i = 0; i < n; i++)
+        INTEGER(Rval)[i] = arr[i];
+    UNPROTECT(1);
+    return Rval;
 }

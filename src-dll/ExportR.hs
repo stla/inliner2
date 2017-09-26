@@ -104,3 +104,11 @@ sliceR vectorR i n result = do
   let slicedVector = SV.slice (fromIntegral i) (fromIntegral n) vector
   -- let slicedVector = GV.basicUnsafeSlice (fromIntegral i) (fromIntegral n) vector
   (>>=) (realCVectorToSEXPN slicedVector n) (poke result)
+--
+foreign export ccall whichR :: Ptr (SEXP s 'R.Real) -> Ptr CDouble -> Ptr (SEXP s 'R.Int) -> IO ()
+whichR :: Ptr (SEXP s 'R.Real) -> Ptr CDouble -> Ptr (SEXP s 'R.Int) -> IO ()
+whichR vectorR a result = do
+  vector <- (>>=) (peek vectorR) sexpToCRealVector
+  a <- peek a
+  let indices = SV.elemIndices a vector
+  (>>=) (intVectorToSEXP indices) (poke result)
