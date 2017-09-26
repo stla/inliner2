@@ -18,11 +18,11 @@ i <- 7000L; n <- 900000L
 microbenchmark(
   H = .C("sliceR", vectorR=list(x), i=i, n=n, result=list(0))$result[[1L]],
   R = x[(i+1L):(i+1L+n)]
-)
+) # Haskell meilleur !
 
 .C("rangeR", a=1L, b=4L, result=list(NULL))$result[[1]]
 library(microbenchmark)
-a <- 1L; b <- 100L
+a <- 1L; b <- 1000L
 microbenchmark(
   HC = .C("rangeR", a=a, b=b, result=list(NULL))$result[[1]],
   R = a:b
@@ -36,12 +36,14 @@ f <- function(x) x+1
 
 f <- function(x) cos(4*acos(x))
 library(microbenchmark)
+library(pracma)
 n <- 15L
 microbenchmark(
   R2 = .C("chebyshevFitR2", n=n, result=list(0))$result[[1L]],
   R3 = .C("chebyshevFitR3", n=n, result=list(0))$result[[1L]],
   R4 = .C("chebyshevFitR4", n=n, result=list(0))$result[[1L]],
-  R5 = .C("chebyshevFitR5", f=list(f), n=n, result=list(0))$result[[1L]]
+  R5 = .C("chebyshevFitR5", f=list(f), n=n, result=list(0))$result[[1L]],
+  P = chebCoeff(f, -1, 1, n-1)
 )
 
 f <- function(x) exp(x)

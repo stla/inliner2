@@ -12,20 +12,20 @@ import qualified Foreign.R            as R
 import qualified Foreign.R.Type       as R
 
 
-foreign import ccall "rangeSEXP" c_rangeSEXP :: CInt -> CInt -> SEXP0
+foreign import ccall unsafe "rangeSEXP" c_rangeSEXP :: CInt -> CInt -> SEXP0
 rangeSEXP :: CInt -> CInt -> SEXP s 'R.Int
 rangeSEXP a b = sexp $ c_rangeSEXP a b
 
-foreign import ccall "myeval" c_myeval :: CDouble -> CDouble
+foreign import ccall unsafe "myeval" c_myeval :: CDouble -> CDouble
 myeval :: Double -> Double
 myeval x = realToFrac (c_myeval (realToFrac x))
 
-foreign import ccall "myeval2" c_myeval2 :: SEXP0 -> CDouble -> CDouble
+foreign import ccall unsafe "myeval2" c_myeval2 :: SEXP0 -> CDouble -> CDouble
 myeval2 :: SEXP s 'R.Closure -> Double -> Double
 myeval2 f x = realToFrac (c_myeval2 (unsexp f) (realToFrac x))
 
 
-foreign import ccall "realToSEXP" c_realToSEXP :: CInt -> Ptr CDouble -> SEXP0
+foreign import ccall unsafe "realToSEXP" c_realToSEXP :: CInt -> Ptr CDouble -> SEXP0
 
 realToSEXP :: [Double] -> IO (SEXP s 'R.Real)
 realToSEXP list =
@@ -45,7 +45,7 @@ realCVectorToSEXPN vector n =
     vector
       (return . sexp . c_realToSEXP n)
 
-foreign import ccall "SEXPtoReal" c_SEXPtoReal :: SEXP0 -> Ptr CDouble
+foreign import ccall unsafe "SEXPtoReal" c_SEXPtoReal :: SEXP0 -> Ptr CDouble
 
 sexpToReal :: SEXP s 'R.Real -> IO [Double]
 sexpToReal vectorR = do
@@ -71,7 +71,7 @@ sexpToRealVector vectorR = do
 -- sliceSEXP :: SEXP s 'R.Real -> CInt -> CInt -> IO (SEXP s 'R.Real)
 -- sliceSEXP vectorR = do
 
-foreign import ccall "intToSEXP" c_intToSEXP :: CInt -> Ptr CInt -> SEXP0
+foreign import ccall unsafe "intToSEXP" c_intToSEXP :: CInt -> Ptr CInt -> SEXP0
 
 intVectorToSEXP :: SV.Vector Int -> IO (SEXP s 'R.Int)
 intVectorToSEXP vector =
