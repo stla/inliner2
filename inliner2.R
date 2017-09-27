@@ -1,7 +1,16 @@
 dll <- "~/Work/Haskell/inliner2/foo2.so"
 dll <- "C:/HaskellProjects/inliner2/foo2.dll"
+dll <- "C:/HaskellProjects/inliner2/fooTest.dll"
 dyn.load(dll)
 .C("HsStart")
+
+.C("test00", result=list(NULL))$result[[1]]
+
+.C("test01", file="example.xlsx", sheet="Sheet1", index=1L, result=list(NULL))$result[[1]]
+
+
+.Call("vectorAppendR", list(1,2), "a")
+.Call("vectorAppendR", NULL, "a")
 
 .C("whichR", vectorR = list(c(1,2,3,4,5)), a=3, result=list(0L))$result[[1L]]
 library(microbenchmark)

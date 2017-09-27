@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds                #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module ExportR
   where
@@ -10,7 +11,8 @@ import qualified Data.Vector.SEXP          as VS
 import qualified Data.Vector.Storable      as SV
 import           Foreign
 import           Foreign.C
-import           Foreign.R                 (SEXP, SEXP0, SomeSEXP,
+import Foreign.C.String (peekCString)
+import           Foreign.R                 (SEXP, SEXP0, SomeSEXP, SEXP (..),
                                             SomeSEXP (..), allocList,
                                             allocVector, allocVectorProtected,
                                             cast, eval, getAttribute,
@@ -27,6 +29,8 @@ import           Language.R.Literal        (fromSomeSEXP,
 import           Lib
 import           System.IO.Unsafe          (unsafePerformIO)
 import           Math.Polynomial.Chebyshev
+import Codec.Xlsx.Types
+import ReadXLSX (xlsxSheetToFormattedCellMap, fcellToCellValue, extractColumn, cellValuesToRVector)
 
 foreign export ccall rangeR :: Ptr CInt -> Ptr CInt -> Ptr (SEXP s 'R.Int) -> IO ()
 rangeR :: Ptr CInt -> Ptr CInt -> Ptr (SEXP s 'R.Int) -> IO ()
@@ -119,3 +123,24 @@ whichR vectorR a result = do
   a <- peek a
   let indices = SV.elemIndices a vector
   (>>=) (intVectorToSEXP indices) (poke result)
+
+foreign export ccall vectorAppendR :: SEXP s 'R.Vector -> SEXP s a -> SEXP s 'R.Vector
+vectorAppendR :: SEXP s 'R.Vector -> SEXP s a -> SEXP s 'R.Vector
+vectorAppendR = vectorAppend
+
+cells :: [Maybe CellValue]
+cells = [Just (CellDouble 1), Just (CellDouble 2), Nothing, Just (CellBool True),
+         Just (CellText "hello")]
+
+foreign export ccall test00 :: Ptr (SEXP V 'R.Vector) -> IO ()
+test00 :: Ptr (SEXP V 'R.Vector) -> IO ()
+test00 result = (>>=) (cellValuesToRVector cells) (poke result)
+
+test01 :: Ptr CString -> Ptr CString -> Ptr CInt -> Ptr (SEXP V 'R.Vector) -> IO ()
+test01 file sheet index result = do
+  file <- (>>=) (peek file) peekCString
+  sheet <- (>>=) (peek sheet) peekCString
+  index <- peek index
+  fcellmap <- xlsxSheetToFormattedCellMap file sheet
+  list <- extractColumn fcellmap fcellToCellValue 0 (fromIntegral index)
+  poke result list

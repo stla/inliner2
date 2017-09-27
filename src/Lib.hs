@@ -4,12 +4,13 @@
 module Lib where
 
 import qualified Data.Vector.Storable as SV
-import           Foreign              (Ptr, newForeignPtr_, peekArray)
+import qualified Data.Vector.SEXP as VS
+import           Foreign              (Ptr, newForeignPtr_, peekArray, peek)
 import           Foreign.C.Types
---import           Foreign.C.String     (withCString)
-import           Foreign.R            (SEXP, SEXP0, sexp, unsexp)
+import           Foreign.R            (SEXP, SEXP0, sexp, unsexp, nilValue)
 import qualified Foreign.R            as R
 import qualified Foreign.R.Type       as R
+--import System.IO.Unsafe (unsafePerformIO)
 
 
 foreign import ccall unsafe "rangeSEXP" c_rangeSEXP :: CInt -> CInt -> SEXP0
@@ -78,3 +79,14 @@ intVectorToSEXP vector =
   SV.unsafeWith
     (SV.map fromIntegral vector)
       (return . sexp . c_intToSEXP (fromIntegral (SV.length vector)))
+
+
+foreign import ccall unsafe "vectorAppend" c_vectorAppend :: SEXP0 -> SEXP0 -> SEXP0
+
+vectorAppend :: SEXP s 'R.Vector -> SEXP s a -> SEXP s 'R.Vector
+vectorAppend list x = sexp (c_vectorAppend (unsexp list) (unsexp x))
+
+vectorAppendIO :: SEXP s 'R.Vector -> SEXP0 -> IO (SEXP s 'R.Vector)
+vectorAppendIO list x = return $ sexp (c_vectorAppend (unsexp list) x)
+
+foreign import ccall unsafe "null0" c_null0 :: SEXP0
