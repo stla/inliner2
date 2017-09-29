@@ -4,9 +4,75 @@ dll <- "C:/HaskellProjects/inliner2/fooTest.dll"
 dyn.load(dll)
 .C("HsStart")
 
+library(microbenchmark)
+microbenchmark(
+  bl = .C("bigListR", m=10L, n=10L, result=list(0L))$result[[1L]],
+  times = 10
+)
+
+.Call("testmkVector")
+
 .C("test00", result=list(NULL))$result[[1]]
 
+setwd("~/Work/Haskell/inliner2/")
+
 .C("test01", file="example.xlsx", sheet="Sheet1", index=1L, result=list(NULL))$result[[1]]
+.C("test02", file="example.xlsx", sheet="Sheet1", result=list(NULL))$result[[1]]
+.Call("test04", "example.xlsx", "Sheet1")
+.Call("test06", "example.xlsx", "Sheet1")
+.Call("test07", "example.xlsx", "Sheet1")
+.Call("test08", "example.xlsx", "Sheet1")
+
+library(readxl)
+library(microbenchmark)
+microbenchmark(
+  readxl = read_xlsx("example.xlsx", "Sheet1", col_types="list", col_names=FALSE),
+  h1 = .Call("test06", "example.xlsx", "Sheet1"),
+  h2 = .Call("test07", "example.xlsx", "Sheet1"),
+  h3 = .Call("test08", "example.xlsx", "Sheet1"),
+  #h4 = .Call("test09", "example.xlsx", "Sheet1"),
+  times=5
+)
+
+
+library(readxl)
+file <- readxl_example("datasets.xlsx")
+dd <- .C("test02", file=file, sheet="mtcars", result=list(NULL))$result[[1]]
+library(microbenchmark)
+microbenchmark(
+  readxl = read_xlsx(file, "mtcars", col_types="list"),
+  #H = .C("test02", file=file, sheet="mtcars", result=list(NULL))$result[[1]],
+  h1 = .Call("test06", file, "mtcars"),
+  h2 = .Call("test07", file, "mtcars"),
+  h3 = .Call("test08", file, "mtcars"),
+  #h4 = .Call("test09", file, "mtcars"),
+  times=2
+)
+library(openxlsx)
+openxlsx::write.xlsx(as.data.frame(matrix(rnorm(10000), nrow=100)), "big.xlsx")
+
+microbenchmark(
+  readxl = read_xlsx("big.xlsx", "Sheet 1", col_types="list", col_names=FALSE),
+  #H3 = .Call("test03"),
+  #H4 = .Call("test04", "big.xlsx", "Sheet 1"), 
+  #H5 = .Call("test05", "big.xlsx", "Sheet 1"), 
+  H6 = .Call("test06", "big.xlsx", "Sheet 1"),
+  H7 = .Call("test07", "big.xlsx", "Sheet 1"),
+  H8 = .Call("test08", "big.xlsx", "Sheet 1"),
+  H9 = .Call("test09", "big.xlsx", "Sheet 1"),
+  times=2
+) 
+
+microbenchmark(
+  readxl = read_xlsx("big.xlsx", "Sheet 1", col_types="list", col_names=FALSE),
+  #H = .C("test02", file=file, sheet="Sheet 1", result=list(NULL))$result,
+  H2bis = .C("test02bis", result=list(NULL)),
+  H3 = .Call("test03"),
+  H4 = .Call("test04", "big.xlsx", "Sheet 1"), 
+  x = .Call("test04", "example.xlsx", "Sheet1"), 
+  O = read.xlsx("big.xlsx", "Sheet 1"),
+  times=2
+) # merde, test03 est plus rapide ! => faire une fonction C pour avoir les String ?..
 
 
 .Call("vectorAppendR", list(1,2), "a")

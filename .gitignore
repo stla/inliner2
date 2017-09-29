@@ -3,3 +3,5 @@
 *.a
 .stack-work/
 test/
+big.xlsx
+.Rhistory

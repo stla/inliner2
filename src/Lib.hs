@@ -4,12 +4,14 @@
 module Lib where
 
 import qualified Data.Vector.Storable as SV
-import qualified Data.Vector.SEXP as VS
-import           Foreign              (Ptr, newForeignPtr_, peekArray, peek)
+import qualified Data.Vector.Storable.Mutable as MSV
+--import qualified Data.Vector.SEXP as VS
+import           Foreign              (Ptr, newForeignPtr_, peekArray, mallocForeignPtrArray, 
+                                      withForeignPtr, peek)
 import           Foreign.C.Types
-import           Foreign.R            (SEXP, SEXP0, sexp, unsexp, nilValue)
+import           Foreign.R            (SEXP, SEXP0, sexp, unsexp)
 import qualified Foreign.R            as R
-import qualified Foreign.R.Type       as R
+--import qualified Foreign.R.Type       as R
 --import System.IO.Unsafe (unsafePerformIO)
 
 
@@ -90,3 +92,39 @@ vectorAppendIO :: SEXP s 'R.Vector -> SEXP0 -> IO (SEXP s 'R.Vector)
 vectorAppendIO list x = return $ sexp (c_vectorAppend (unsexp list) x)
 
 foreign import ccall unsafe "null0" c_null0 :: SEXP0
+
+foreign import ccall unsafe "mkVector" c_mkVector :: Ptr SEXP0 -> CInt -> IO SEXP0
+
+mkVector :: SV.Vector SEXP0 -> IO (SEXP s 'R.Vector)
+mkVector sv = do
+    -- fptr <- mallocForeignPtrArray n
+    -- sexp0 <- withForeignPtr fptr $ \x -> c_mkVector x (fromIntegral n)
+    -- return $ sexp sexp0
+    sexp0 <- SV.unsafeWith sv (\x -> c_mkVector x (fromIntegral n))
+    --sexp0 <- peek ptr
+    return $ sexp sexp0
+  where
+    n = SV.length sv
+
+mkVector0 :: SV.Vector SEXP0 -> IO SEXP0
+mkVector0 sv = 
+    SV.unsafeWith sv (\x -> c_mkVector x (fromIntegral (SV.length sv)))
+
+mkVector2 :: MSV.IOVector SEXP0 -> IO (SEXP s 'R.Vector)
+mkVector2 sv = do
+    sexp0 <- MSV.unsafeWith sv (\x -> c_mkVector x (fromIntegral n))
+    return $ sexp sexp0
+  where
+    n = MSV.length sv
+
+foreign import ccall unsafe "Rf_ScalarReal" c_ScalarReal :: CDouble -> SEXP0
+realToSEXP0 :: Double -> SEXP0
+realToSEXP0 x = c_ScalarReal (realToFrac x) 
+
+foreign import ccall unsafe "allocProtectedVector" c_allocProtectedVector :: CInt -> IO SEXP0
+allocProtectedVector :: Int -> IO SEXP0
+allocProtectedVector i = c_allocProtectedVector (fromIntegral i)
+
+foreign import ccall unsafe "writeInVector" c_writeInVector :: SEXP0 -> SEXP0 -> CInt -> IO ()
+writeInVector :: SEXP0 -> SEXP0 -> Int -> IO ()
+writeInVector list element index = c_writeInVector list element (fromIntegral index)

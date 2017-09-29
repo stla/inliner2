@@ -78,10 +78,30 @@ SEXP vectorAppend(SEXP list, SEXP x) {
   return new;
 }
 
+SEXP allocProtectedVector(int n){
+    SEXP new;
+    PROTECT(new = allocVector(VECSXP, n));
+    return new;
+}
+
+void writeInVector(SEXP vector, SEXP element, int index){
+    SET_VECTOR_ELT(vector, index, element);
+    return ;
+}
+
 SEXP singletonVector(SEXP x){
   return vectorAppend(R_NilValue, x);
 }
 
 SEXP null0(){
   return R_NilValue;
+}
+
+SEXP mkVector(SEXP *list, size_t n){
+    SEXP out; int i;
+    PROTECT(out=allocVector(VECSXP, n));
+    for(i=0;i<n;i++)
+        SET_VECTOR_ELT(out, i, list[i]);
+    UNPROTECT(1);
+    return out;
 }
